@@ -15,7 +15,7 @@ const OnboardingScreen = ({ navigation }: any) => {
     try {
       await AsyncStorage.setItem('onboardingCompleted', 'true');
       await AsyncStorage.setItem('userData', JSON.stringify(data));
-      router.push('/text');
+      router.replace('/text');
     } catch (e) {
       console.error('Failed to save onboarding data to local storage', e);
     }

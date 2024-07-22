@@ -18,7 +18,7 @@ const openai = new OpenAI({
 const CONTEXT_MESSAGE = {
   role: 'system',
   content:
-    'You are an expert in Ghanaian Adolescent Sexual and Reproductive Health issues, you provide safe, concise, precise, relevant and age-appropriate information to Ghanaian adolescents who are visually or hearing impaired.',
+    'You are an expert in Ghanaian Adolescent Sexual and Reproductive Health issues. You provide safe, concise, precise, relevant and age-appropriate information to Ghanaian adolescents who are visually or hearing impaired.',
 };
 
 interface Message {
@@ -27,6 +27,7 @@ interface Message {
 }
 
 const TextChat: React.FC = () => {
+  let userString = '';
   const router = useRouter();
   const [inputText, setInputText] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -36,10 +37,6 @@ const TextChat: React.FC = () => {
     const checkOnboardingStatus = async () => {
       const onboardingStatus = await AsyncStorage.getItem(
         'onboardingCompleted'
-      );
-      console.log(
-        '🚀 ~ checkOnboardingStatus ~ onboardingStatus:',
-        onboardingStatus
       );
       if (!onboardingStatus) {
         router.replace('/onboarding');
@@ -59,14 +56,36 @@ const TextChat: React.FC = () => {
 
   const initializeMessages = async () => {
     const savedMessages = await AsyncStorage.getItem('messages');
-    const parsedMessages: Message[] = savedMessages
+    let parsedMessages: Message[] = savedMessages
       ? JSON.parse(savedMessages)
       : [];
     if (parsedMessages.length === 0) {
-      parsedMessages.push(CONTEXT_MESSAGE as Message);
+      const userData = await getUserData();
+      const initialMessages = [
+        CONTEXT_MESSAGE,
+        { role: 'user', content: userData },
+      ];
+      setMessages(initialMessages as Message[]);
+      await saveMessages(initialMessages as Message[]);
+    } else {
+      setMessages(parsedMessages);
     }
-    setMessages(parsedMessages);
-    saveMessages(parsedMessages);
+  };
+
+  const getUserData = async () => {
+    const userData = (await AsyncStorage.getItem('userData')) || '';
+    const parsedUserData = userData ? JSON.parse(userData) : {};
+    userString = '';
+    if (parsedUserData.gender) {
+      userString += `Gender: ${parsedUserData.gender}\n`;
+    }
+    if (parsedUserData.age) {
+      userString += `Age: ${parsedUserData.age}\n`;
+    }
+    if (parsedUserData.disability) {
+      userString += `Disability: ${parsedUserData.disability}\n`;
+    }
+    return userString;
   };
 
   const saveMessages = async (messages: Message[]) => {
@@ -82,7 +101,7 @@ const TextChat: React.FC = () => {
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     setInputText('');
-    saveMessages(updatedMessages);
+    await saveMessages(updatedMessages);
     await sendToChatGPT(updatedMessages);
   };
 
@@ -103,7 +122,7 @@ const TextChat: React.FC = () => {
       };
       const updatedMessages = [...contextMessages, assistantMessage];
       setMessages(updatedMessages);
-      saveMessages(updatedMessages);
+      await saveMessages(updatedMessages);
     } catch (error) {
       console.error('Error sending message to ChatGPT', error);
     }
@@ -117,17 +136,21 @@ const TextChat: React.FC = () => {
     try {
       await AsyncStorage.removeItem('messages');
       await AsyncStorage.removeItem('onboardingCompleted');
-      setMessages([CONTEXT_MESSAGE as Message]);
+      setMessages([CONTEXT_MESSAGE] as Message[]);
     } catch (error) {
       console.error('Error clearing messages', error);
     }
   };
 
+  const filteredMessages = messages.filter(
+    (message) => message.role !== 'system' && message.content !== userString
+  );
+
   return (
     <View style={styles.container}>
       <FlatList
         ref={flatListRef}
-        data={messages}
+        data={filteredMessages}
         renderItem={({ item }) => (
           <View
             style={
