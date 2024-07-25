@@ -33,7 +33,7 @@ const Index = () => {
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/text')}
+        onPress={() => router.push('/(tabs)')}
       >
         <Text style={styles.buttonText}>Get Started with text</Text>
       </TouchableOpacity>
