@@ -172,12 +172,11 @@ const VoiceToText: React.FC = () => {
     const uri = recording?.getURI();
     console.log("Recording stopped and stored at", uri);
     if (uri) {
-      const transcription = await openai.audio.transcriptions.create({
-        file: uri,
-        model: "whisper-1",
-      });
-
-      console.log(transcription.text);
+      //   const transcription = await openai.audio.transcriptions.create({
+      //     file: uri,
+      //     model: "whisper-1",
+      //   });
+      //   console.log(transcription.text);
       //   console.log("🚀 ~ stopRecording ~ text:", text);
       //   setResults((prevResults) => [...prevResults, text]);
     }
