@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   StyleSheet,
-} from 'react-native';
-import React, { useEffect, useLayoutEffect } from 'react';
-import { useNavigation, useRouter } from 'expo-router';
+} from "react-native";
+import React, { useEffect, useLayoutEffect } from "react";
+import { useNavigation, useRouter } from "expo-router";
 
 const Index = () => {
   const navigation = useNavigation();
@@ -27,15 +27,15 @@ const Index = () => {
           Empower Your Mind: AI Support for Teens
         </Text>
         <Image
-          source={require('../assets/images/icon.png')}
+          source={require("../assets/images/hashtag.png")}
           style={styles.image}
         />
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(tabs)')}
+        onPress={() => router.push("/(tabs)")}
       >
-        <Text style={styles.buttonText}>Get Started with text</Text>
+        <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -47,36 +47,36 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontSize: 40,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 20,
-    textAlign: 'center',
+    textAlign: "center",
     marginVertical: 20,
   },
   image: {
     width: 200,
     height: 200,
-    marginHorizontal: 'auto',
+    marginHorizontal: "auto",
   },
   button: {
-    backgroundColor: '#1E90FF',
+    backgroundColor: "#1E90FF",
     borderRadius: 10,
     padding: 15,
     marginVertical: 20,
-    width: '90%',
-    alignSelf: 'center',
+    width: "90%",
+    alignSelf: "center",
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 18,
-    textAlign: 'center',
-    fontWeight: '600',
+    textAlign: "center",
+    fontWeight: "600",
   },
 });
 
