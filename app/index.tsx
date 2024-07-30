@@ -35,7 +35,7 @@ const Index = () => {
         style={styles.button}
         onPress={() => router.push("/(tabs)")}
       >
-        <Text style={styles.buttonText}>Get Started with text</Text>
+        <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
