@@ -166,19 +166,42 @@ const VoiceToText: React.FC = () => {
   };
 
   const stopRecording = async () => {
-    console.log("Stopping recording..");
-    setRecording(null);
-    await recording?.stopAndUnloadAsync();
-    const uri = recording?.getURI();
-    console.log("Recording stopped and stored at", uri);
-    if (uri) {
-      //   const transcription = await openai.audio.transcriptions.create({
-      //     file: uri,
-      //     model: "whisper-1",
-      //   });
-      //   console.log(transcription.text);
-      //   console.log("🚀 ~ stopRecording ~ text:", text);
-      //   setResults((prevResults) => [...prevResults, text]);
+    if (recording) {
+      console.log("Stopping recording..");
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      console.log("Recording stopped and stored at", uri);
+
+      try {
+        const formData = new FormData();
+        formData.append("audio", {
+          uri: uri,
+          name: "recording.m4a",
+          type: "audio/m4a",
+        } as unknown as Blob);
+
+        const response = await axios.post(
+          "https://speechserver.onrender.com/audio",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log("🚀 ~ stopRecording ~ response:", response);
+
+        // Play the received audio
+        // if (audioUri) {
+        //   const { sound } = await Audio.Sound.createAsync({ uri: audioUri });
+        //   setSound(sound);
+        //   await sound.playAsync();
+        // }
+      } catch (error) {
+        console.error("Error processing audio", error);
+      } finally {
+        setRecording(null);
+      }
     }
   };
 
