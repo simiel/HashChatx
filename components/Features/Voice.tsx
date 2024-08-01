@@ -12,6 +12,8 @@ import OpenAI from "openai";
 import { useRouter } from "expo-router";
 import { Audio } from "expo-av";
 import axios from "axios";
+import * as FileSystem from "expo-file-system";
+import { Buffer } from "buffer";
 
 const openai = new OpenAI({
   apiKey: "sk-proj-1QeKnew1Z6MY3CazY3xNT3BlbkFJsP1dGVemeeQpvGRsnBMf",
@@ -172,35 +174,46 @@ const VoiceToText: React.FC = () => {
       const uri = recording.getURI();
       console.log("Recording stopped and stored at", uri);
 
-      try {
+      if (uri) {
         const formData = new FormData();
         formData.append("audio", {
           uri: uri,
           name: "recording.m4a",
           type: "audio/m4a",
-        } as unknown as Blob);
+        } as any);
 
-        const response = await axios.post(
-          "https://speechserver.onrender.com/audio",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        console.log("🚀 ~ stopRecording ~ response:", response);
+        try {
+          const response = await axios.post(
+            "https://speechserver.onrender.com/audio",
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+              responseType: "arraybuffer", // Ensure response is received as binary data
+            }
+          );
 
-        // Play the received audio
-        // if (audioUri) {
-        //   const { sound } = await Audio.Sound.createAsync({ uri: audioUri });
-        //   setSound(sound);
-        //   await sound.playAsync();
-        // }
-      } catch (error) {
-        console.error("Error processing audio", error);
-      } finally {
-        setRecording(null);
+          // Convert binary data to Base64
+          const base64Data = Buffer.from(response.data).toString("base64");
+          const tempFilePath = `${FileSystem.documentDirectory}response.mp3`;
+
+          // Write Base64 string to a file
+          await FileSystem.writeAsStringAsync(tempFilePath, base64Data, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+
+          // Play the received audio
+          const { sound } = await Audio.Sound.createAsync({
+            uri: tempFilePath,
+          });
+          setSound(sound);
+          await sound.playAsync();
+        } catch (error) {
+          console.error("Error processing audio", error);
+        } finally {
+          setRecording(null);
+        }
       }
     }
   };
